@@ -32,6 +32,9 @@ function App() {
 
         if (data.total === 0) {
           setError("No images found");
+          setImages([]);
+          setTotalPages(0);
+          setPage(1);
           return;
         }
         if (page === 1) {
