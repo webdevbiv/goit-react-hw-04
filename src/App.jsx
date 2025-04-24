@@ -22,9 +22,10 @@ function App() {
   useEffect(() => {
     const abortController = new AbortController();
     setError(null);
-    if (!query) return;
 
     const getImages = async () => {
+      if (!query) return;
+
       setIsLoading(true);
       try {
         const data = await fetchImages(query, page, abortController.signal);
