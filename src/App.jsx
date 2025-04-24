@@ -7,7 +7,7 @@ import LoadMoreBtn from "./components/LoadMoreBtn/LoadMoreBtn";
 import SearchBar from "./components/SearchBar/SearchBar";
 import { fetchImages } from "./api/api";
 
-import "./App.css";
+import "./App.scss";
 
 function App() {
   const [query, setQuery] = useState("");

@@ -1,7 +1,12 @@
+import s from "./ImageCard.module.scss";
 const ImageCard = ({ image, onClick }) => {
   return (
-    <div onClick={() => onClick(image)}>
-      <img src={image.urls.small} alt={image.alt_description} />
+    <div className={s.card} onClick={() => onClick(image)}>
+      <img
+        className={s.image}
+        src={image.urls.small}
+        alt={image.alt_description}
+      />
     </div>
   );
 };
