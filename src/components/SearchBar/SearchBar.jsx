@@ -1,12 +1,22 @@
-const SearchBar = ({ handleSubmit }) => {
-  const handleSearch = (e) => {
-    e.preventDefault();
-    handleSubmit(e.target[0].value);
-  };
+import toast from "react-hot-toast";
 
+const SearchBar = ({ onSubmit }) => {
+  const handleSubmit = (e) => {
+    e.preventDefault();
+
+    const form = e.target;
+    const query = form.elements[0].value.trim();
+    if (query === "") {
+      toast.error("Please enter a search term");
+      return;
+    }
+
+    onSubmit(query);
+    form.reset();
+  };
   return (
     <header>
-      <form onSubmit={handleSearch}>
+      <form onSubmit={handleSubmit}>
         <input
           type="text"
           autoComplete="off"

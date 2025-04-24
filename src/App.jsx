@@ -13,19 +13,39 @@ function App() {
   const [query, setQuery] = useState("");
   const [images, setImages] = useState([]);
   const [page, setPage] = useState(1);
+  const [totalPages, setTotalPages] = useState(0);
   const [modalImage, setModalImage] = useState(null);
+  const [showModal, setShowModal] = useState(false);
+  const [isLoading, setIsLoading] = useState(false);
+  const [error, setError] = useState(null);
 
   useEffect(() => {
     const abortController = new AbortController();
+    setError(null);
     if (!query) return;
 
     const getImages = async () => {
+      setIsLoading(true);
       try {
-        const images = await fetchImages(query, page, abortController.signal);
-        console.log(images);
-        setImages(images);
+        const data = await fetchImages(query, page, abortController.signal);
+        console.log(data);
+
+        if (data.total === 0) {
+          setError("No images found");
+          return;
+        }
+        if (page === 1) {
+          setImages(data.results);
+          setTotalPages(data.total_pages);
+        } else {
+          setImages((prevImages) => [...prevImages, ...data.results]);
+        }
       } catch (error) {
-        console.error("Error fetching images:", error);
+        if (error.name === "CanceledError") return;
+
+        setError("Something went wrong. Please try again.");
+      } finally {
+        setIsLoading(false);
       }
     };
 
@@ -35,31 +55,40 @@ function App() {
     };
   }, [query, page]);
 
-  const handleSearch = (newQuery) => {
-    setQuery(newQuery);
+  const onSubmit = (query) => {
+    setQuery(query);
     setPage(1);
   };
 
-  const handleImageClick = (image) => {
+  const handleModalOpen = (image) => {
     setModalImage(image);
+    setShowModal(true);
   };
 
   const handleModalClose = () => {
     setModalImage(null);
+    setShowModal(false);
+  };
+
+  const handleLoadMore = () => {
+    setPage((prevPage) => prevPage + 1);
   };
 
   return (
     <>
-      <SearchBar handleSubmit={handleSearch} />
+      <SearchBar onSubmit={onSubmit} />
       {images.length > 0 && (
-        <ImageGallery images={images} onImageClick={handleImageClick} />
+        <ImageGallery images={images} onClick={handleModalOpen} />
       )}
-      {modalImage && (
-        <ImageModal image={modalImage} onClose={handleModalClose} />
-      )}
-      {/* <Loader /> */}
-      {/* <LoadMoreBtn /> */}
-      {/* <ErrorMessage /> */}
+      {error && <ErrorMessage message={error} />}
+      <ImageModal
+        isOpen={showModal}
+        onClose={handleModalClose}
+        image={modalImage}
+      />
+
+      <Loader loading={isLoading} />
+      {page < totalPages && <LoadMoreBtn onClick={handleLoadMore} />}
     </>
   );
 }
